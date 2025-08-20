@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import emailjs from "emailjs-com";
+import apiService from "../services/apiService";
 
 export default function ContactPage() {
   const [darkMode, setDarkMode] = useState(true);
@@ -7,30 +7,29 @@ export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const formRef = useRef();
 
-  const sendEmail = (e) => {
+  const sendEmail = async (e) => {
     e.preventDefault();
     setStatus("Sending...");
     setIsSubmitting(true);
 
-    emailjs
-      .sendForm(
-        "your_service_id", // 🔹 from EmailJS dashboard
-        "your_template_id", // 🔹 from EmailJS dashboard
-        formRef.current,
-        "your_public_key" // 🔹 from EmailJS account
-      )
-      .then(
-        () => {
-          setStatus("✅ Message sent successfully!");
-          formRef.current.reset();
-          setIsSubmitting(false);
-        },
-        (error) => {
-          console.error(error.text);
-          setStatus("❌ Failed to send message. Try again later.");
-          setIsSubmitting(false);
-        }
-      );
+    const formData = new FormData(formRef.current);
+    const feedbackData = {
+      name: formData.get('first_name') + ' ' + formData.get('last_name'),
+      email: formData.get('user_email'),
+      subject: formData.get('subject'),
+      message: formData.get('message'),
+    };
+
+    try {
+      await apiService.submitFeedback(feedbackData);
+      setStatus("✅ Message sent successfully!");
+      formRef.current.reset();
+    } catch (error) {
+      console.error(error);
+      setStatus("❌ Failed to send message. Try again later.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

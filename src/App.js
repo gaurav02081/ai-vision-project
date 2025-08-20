@@ -1,3 +1,4 @@
+import { AuthProvider } from "./context/AuthContext";
 import Hero from "./components/hero";
 import Navbar from "./components/navbar";
 import Features from "./components/features";
@@ -15,8 +16,9 @@ import ContactPage from "./components/ContactPage.jsx";
 
 function App() {
   return (
-    <div className="bg-black text-white">
-      <Routes>
+    <AuthProvider>
+      <div className="bg-black text-white">
+        <Routes>
         <Route
           path="/"
           element={
@@ -50,15 +52,14 @@ function App() {
             </>
           }
         />
-        <Route path="/features/object-detection" element={<ObjectPage />} />
-        <Route path="/features/facial-recognition" element={<FacialRecognitionPage />} />
-        <Route path="/features/gesture-control" element={<GestureControlPage />} />
-        <Route path="/features/image-segmentation" element={<ImageSegmentationPage />} />
-       
-      </Routes>
-      
-    </div>
-  );
-}
+            <Route path="/features/object-detection" element={<ObjectPage />} />
+            <Route path="/features/facial-recognition" element={<FacialRecognitionPage />} />
+            <Route path="/features/gesture-control" element={<GestureControlPage />} />
+            <Route path="/features/image-segmentation" element={<ImageSegmentationPage />} />
+          </Routes>
+        </div>
+      </AuthProvider>
+    );
+  }
 
 export default App;

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Frontend API</title>
+</head>
+<body>
+    <h1>Test Frontend API Connection</h1>
+    <button onclick="testAPI()">Test API</button>
+    <div id="result"></div>
+
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                // Test 1: Create session
+                console.log('Creating session...');
+                const sessionResponse = await fetch('http://127.0.0.1:8000/api/demo-sessions/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'demo_type=object_detection'
+                });
+                
+                if (!sessionResponse.ok) {
+                    throw new Error(`Session creation failed: ${sessionResponse.status}`);
+                }
+                
+                const sessionData = await sessionResponse.json();
+                console.log('Session created:', sessionData);
+                
+                // Test 2: Test object detection endpoint
+                console.log('Testing object detection endpoint...');
+                const processResponse = await fetch('http://127.0.0.1:8000/api/processing/object_detection/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        session_id: sessionData.session_id, 
+                        confidence: 0.25 
+                    })
+                });
+                
+                if (!processResponse.ok) {
+                    const errorText = await processResponse.text();
+                    throw new Error(`Processing failed: ${processResponse.status} - ${errorText}`);
+                }
+                
+                const processData = await processResponse.json();
+                console.log('Processing result:', processData);
+                
+                resultDiv.innerHTML = `
+                    <h2>✅ API Test Successful!</h2>
+                    <p><strong>Session ID:</strong> ${sessionData.id}</p>
+                    <p><strong>Session UUID:</strong> ${sessionData.session_id}</p>
+                    <p><strong>Processing Status:</strong> ${processData.status || 'Success'}</p>
+                    <p><strong>Detections:</strong> ${processData.detections ? processData.detections.length : 0}</p>
+                `;
+                
+            } catch (error) {
+                console.error('API Test failed:', error);
+                resultDiv.innerHTML = `
+                    <h2>❌ API Test Failed</h2>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

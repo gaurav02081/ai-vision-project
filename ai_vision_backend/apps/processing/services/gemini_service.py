@@ -5,12 +5,13 @@ from django.conf import settings  # pyright: ignore[reportMissingImports]
 class GeminiService:
     def __init__(self):
         # Initialize Gemini API
-        api_key = os.getenv('GEMINI_API_KEY')
+        from django.conf import settings
+        api_key = getattr(settings, 'GEMINI_API_KEY', None) or os.getenv('GEMINI_API_KEY')
         if not api_key:
-            raise ValueError("GEMINI_API_KEY environment variable is required")
+            raise ValueError("GEMINI_API_KEY is required in Django settings or environment variables")
         
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-1.5-flash')
+        self.model = genai.GenerativeModel('gemini-1.5-pro')
     
     def generate_description(self, detections, image_type="object detection"):
         """
@@ -60,11 +61,17 @@ class GeminiService:
                     objects_text = ", ".join(objects)
                     
                     prompt = f"""
-                    Based on the following object detection results, provide a natural, engaging description of what was found in the image:
+                    Based on the following object detection results from a YOLOv8 computer vision model, provide a natural, engaging description of what was found in the image:
                     
                     Detected objects: {objects_text}
                     
-                    Please provide a brief, informative description (2-3 sentences) that explains what objects were detected and their confidence levels. Make it sound natural and educational.
+                    Please provide a detailed, informative description (3-4 sentences) that:
+                    1. Describes the scene and what objects were detected
+                    2. Mentions the confidence levels and detection quality
+                    3. Provides context about the computer vision technology used
+                    4. Makes it sound natural, educational, and professional
+                    
+                    Focus on accuracy, confidence levels, and the technical capabilities of the AI system.
                     """
                 
             elif image_type == "facial_recognition":
@@ -84,11 +91,31 @@ class GeminiService:
                 """
                 
             elif image_type == "image_segmentation":
-                prompt = f"""
-                Based on image segmentation analysis, provide a natural description of the segmented regions in the image.
-                Results: {detections}
+                if not detections or len(detections) == 0:
+                    return "No objects were segmented in the image."
                 
-                Please provide a brief, informative description (2-3 sentences) about the segmentation results.
+                # Format segmentation results
+                segments = []
+                for segment in detections:
+                    label = segment.get('label', 'unknown object')
+                    confidence = segment.get('confidence', 0)
+                    area = segment.get('area', 0)
+                    segments.append(f"{label} (confidence: {confidence:.1%}, area: {area} pixels)")
+                
+                segments_text = ", ".join(segments)
+                
+                prompt = f"""
+                Based on the following semantic segmentation results from a DeepLabV3+ computer vision model, provide a natural, engaging description of what was found in the image:
+                
+                Segmented objects: {segments_text}
+                
+                Please provide a detailed, informative description (3-4 sentences) that:
+                1. Describes the scene and what objects were segmented
+                2. Mentions the confidence levels and segmentation quality
+                3. Explains how semantic segmentation works at the pixel level
+                4. Makes it sound natural, educational, and professional
+                
+                Focus on the technical capabilities of semantic segmentation and how it identifies objects at the pixel level.
                 """
             
             else:

@@ -8,6 +8,9 @@ SECRET_KEY = config('SECRET_KEY', default='dev-secret-key')
 
 DEBUG = config('DEBUG', default=True, cast=bool)
 
+# Gemini API Key
+GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
+
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 INSTALLED_APPS = [

@@ -5,129 +5,18 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.conf import settings
-from apps.demos.models import DemoSession
-from .models import ProcessingResult, FacialRecognition, GestureControl, ImageSegmentation
 from .services.object_detection import ObjectDetectionService
 from .services.image_analysis import ImageAnalysisService
 from .services.gemini_service import GeminiService
 from .services.facial_recognition_service import FacialRecognitionService
 from .services.gesture_control_service import GestureControlService
 from .services.image_segmentation_service import ImageSegmentationService
+from .services.chatbot_service import ChatbotService
 
 # Global cache for face embeddings (session-based)
 FACE_EMBEDDING_CACHE = {}
 
 class ProcessingViewSet(viewsets.ViewSet):
-    @action(detail=False, methods=['post', 'get'])
-    def object_detection(self, request):
-        # If GET with ?session_id=..., return the latest processing result for that session
-        if request.method == 'GET':
-            session_id = request.query_params.get('session_id')
-            if not session_id:
-                return Response({'error': 'session_id required (query param)'}, status=status.HTTP_400_BAD_REQUEST)
-            try:
-                session = DemoSession.objects.get(session_id=session_id)
-                last = ProcessingResult.objects.filter(session=session).order_by('-created_at').first()
-                if not last:
-                    return Response({'session_id': str(session.session_id), 'status': session.status, 'results': None})
-                input_url = request.build_absolute_uri(session.demofile_set.first().file.url) if session.demofile_set.exists() else None
-                output_url = request.build_absolute_uri(last.result_file.url) if last.result_file else None
-                return Response({
-                    'session_id': str(session.session_id),
-                    'status': session.status,
-                    'input_image_url': input_url,
-                    'output_image_url': output_url,
-                    'result_data': last.result_data,
-                    'processing_time': last.processing_time
-                })
-            except DemoSession.DoesNotExist:
-                return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
-
-        # POST path continues below
-        session_id = request.data.get('session_id')
-        if not session_id:
-            return Response({'error': 'session_id required'}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            session = DemoSession.objects.get(session_id=session_id)
-            demo_file = session.demofile_set.first()
-            if not demo_file:
-                return Response({'error': 'No file uploaded'}, status=status.HTTP_400_BAD_REQUEST)
-
-            svc = ObjectDetectionService()
-            # allow request to pass an optional confidence threshold (float)
-            try:
-                confidence = float(request.data.get('confidence', 0.5))
-            except Exception:
-                confidence = 0.5
-
-            # Check if file is video or image based on file extension
-            file_path = demo_file.file.path
-            file_extension = os.path.splitext(file_path)[1].lower()
-            is_video = file_extension in ['.mp4', '.avi', '.mov', '.mkv', '.wmv', '.flv']
-            
-            detections = []
-            vis_path = None
-            
-            if is_video:
-                # Process video
-                frame_detections, vis_path = svc.process_video_with_viz(file_path, confidence_threshold=confidence)
-                # Flatten detections for response
-                detections = []
-                for frame_data in frame_detections:
-                    for detection in frame_data['detections']:
-                        detection['frame'] = frame_data['frame']
-                        detections.append(detection)
-            else:
-                # Process image
-                detections, vis_path = svc.process_image_with_viz(file_path, confidence_threshold=confidence)
-
-            # Generate AI description using Gemini
-            try:
-                gemini_service = GeminiService()
-                ai_description = gemini_service.generate_description(detections, 'object_detection')
-                technical_summary = gemini_service.generate_technical_summary(detections, 0.5, 'yolov8')
-            except Exception as e:
-                print(f"Gemini service error: {e}")
-                ai_description = f"Successfully detected {len(detections)} object{'s' if len(detections) != 1 else ''} in the image."
-                technical_summary = f"Processed using YOLOv8 in 0.5s with {len(detections)} detections."
-
-            result = ProcessingResult.objects.create(
-                session=session,
-                result_type='object_detection',
-                result_file=vis_path if vis_path else None,
-                result_data={
-                    'detections': detections,
-                    'ai_description': ai_description,
-                    'technical_summary': technical_summary
-                },
-                processing_time=0.5,
-                model_used='yolov8',
-                confidence_threshold=confidence
-            )
-
-            session.status = 'completed'
-            session.save()
-
-            input_url = request.build_absolute_uri(demo_file.file.url)
-            output_url = None
-            if result.result_file:
-                # result.result_file stores relative path like 'results/detection/xxx'
-                output_url = request.build_absolute_uri(result.result_file.url)
-
-            return Response({
-                'session_id': str(session.session_id),
-                'detections': detections,
-                'processing_time': result.processing_time,
-                'input_image_url': input_url,
-                'output_image_url': output_url,
-                'ai_description': ai_description,
-                'technical_summary': technical_summary
-            })
-        except DemoSession.DoesNotExist:
-            return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
     @action(detail=False, methods=['post'])
     def analyze_image(self, request):
         """
@@ -403,266 +292,6 @@ class ProcessingViewSet(viewsets.ViewSet):
                 os.remove(temp_path)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @action(detail=False, methods=['post', 'get'])
-    def facial_recognition(self, request):
-        # If GET with ?session_id=..., return the latest processing result for that session
-        if request.method == 'GET':
-            session_id = request.query_params.get('session_id')
-            if not session_id:
-                return Response({'error': 'session_id required (query param)'}, status=status.HTTP_400_BAD_REQUEST)
-            try:
-                session = DemoSession.objects.get(session_id=session_id)
-                facial_rec = FacialRecognition.objects.filter(session=session).first()
-                if not facial_rec:
-                    return Response({'session_id': str(session.session_id), 'status': session.status, 'results': None})
-                
-                input_url = request.build_absolute_uri(facial_rec.input_image.url) if facial_rec.input_image else None
-                output_url = request.build_absolute_uri(facial_rec.result_image.url) if facial_rec.result_image else None
-                
-                return Response({
-                    'session_id': str(session.session_id),
-                    'status': session.status,
-                    'recognized': facial_rec.recognized,
-                    'confidence': facial_rec.confidence,
-                    'input_image_url': input_url,
-                    'output_image_url': output_url,
-                    'ai_description': facial_rec.ai_description,
-                    'technical_summary': facial_rec.technical_summary
-                })
-            except DemoSession.DoesNotExist:
-                return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
-
-        # POST path continues below
-        session_id = request.data.get('session_id')
-        if not session_id:
-            return Response({'error': 'session_id required'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            session = DemoSession.objects.get(session_id=session_id)
-            facial_rec = FacialRecognition.objects.filter(session=session).first()
-            
-            if not facial_rec or not facial_rec.input_image:
-                return Response({'error': 'No image uploaded yet'}, status=status.HTTP_400_BAD_REQUEST)
-
-            # Process the face
-            service = FacialRecognitionService()
-            input_path = os.path.join(settings.MEDIA_ROOT, facial_rec.input_image.name)
-
-            results = service.process_face(input_path, facial_rec.name)
-
-            # Generate result image with face box
-            output_filename = f"facial_result_{session_id}.jpg"
-            output_path = os.path.join(settings.MEDIA_ROOT, 'facial_output', output_filename)
-            os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
-            service.draw_face_box(input_path, output_path)
-
-            # Update model with results
-            facial_rec.result_image = f"facial_output/{output_filename}"
-            facial_rec.recognized = results['recognized']
-            facial_rec.confidence = results['confidence']
-            facial_rec.ai_description = results['ai_description']
-            facial_rec.technical_summary = results['technical_summary']
-            facial_rec.save()
-
-            # Update session status
-            session.status = 'completed'
-            session.save()
-
-            input_url = request.build_absolute_uri(facial_rec.input_image.url)
-            output_url = request.build_absolute_uri(facial_rec.result_image.url)
-
-            return Response({
-                'session_id': str(session.session_id),
-                'status': 'completed',
-                'recognized': results['recognized'],
-                'confidence': results['confidence'],
-                'input_image_url': input_url,
-                'output_image_url': output_url,
-                'ai_description': results['ai_description'],
-                'technical_summary': results['technical_summary']
-            })
-
-        except DemoSession.DoesNotExist:
-            return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    @action(detail=False, methods=['post', 'get'])
-    def gesture_recognition(self, request):
-        # If GET with ?session_id=..., return the latest processing result for that session
-        if request.method == 'GET':
-            session_id = request.query_params.get('session_id')
-            if not session_id:
-                return Response({'error': 'session_id required (query param)'}, status=status.HTTP_400_BAD_REQUEST)
-            try:
-                session = DemoSession.objects.get(session_id=session_id)
-                gesture_rec = GestureControl.objects.filter(session=session).first()
-                if not gesture_rec:
-                    return Response({'session_id': str(session.session_id), 'status': session.status, 'results': None})
-                
-                input_url = request.build_absolute_uri(gesture_rec.input_image.url) if gesture_rec.input_image else None
-                output_url = request.build_absolute_uri(gesture_rec.result_image.url) if gesture_rec.result_image else None
-                
-                return Response({
-                    'session_id': str(session.session_id),
-                    'status': session.status,
-                    'input_image_url': input_url,
-                    'output_image_url': output_url,
-                    'landmarks': gesture_rec.landmarks,
-                    'ai_description': gesture_rec.ai_description,
-                    'technical_summary': gesture_rec.technical_summary
-                })
-            except DemoSession.DoesNotExist:
-                return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
-
-        # POST path continues below
-        session_id = request.data.get('session_id')
-        if not session_id:
-            return Response({'error': 'session_id required'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            session = DemoSession.objects.get(session_id=session_id)
-            gesture_rec = GestureControl.objects.filter(session=session).first()
-            
-            if not gesture_rec or not gesture_rec.input_image:
-                return Response({'error': 'No image uploaded yet'}, status=status.HTTP_400_BAD_REQUEST)
-
-            # Process the gesture
-            service = GestureControlService()
-            input_path = os.path.join(settings.MEDIA_ROOT, gesture_rec.input_image.name)
-
-            results = service.process_gesture(input_path)
-
-            # Generate result image with pose landmarks
-            output_filename = f"gesture_result_{session_id}.jpg"
-            output_path = os.path.join(settings.MEDIA_ROOT, 'gesture_output', output_filename)
-            os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
-            service.draw_pose_landmarks(input_path, results['landmarks'], output_path)
-
-            # Update model with results
-            gesture_rec.result_image = f"gesture_output/{output_filename}"
-            gesture_rec.landmarks = results['landmarks']
-            gesture_rec.ai_description = results['ai_description']
-            gesture_rec.technical_summary = results['technical_summary']
-            gesture_rec.save()
-
-            # Update session status
-            session.status = 'completed'
-            session.save()
-
-            input_url = request.build_absolute_uri(gesture_rec.input_image.url)
-            output_url = request.build_absolute_uri(gesture_rec.result_image.url)
-
-            return Response({
-                'session_id': str(session.session_id),
-                'status': 'completed',
-                'input_image_url': input_url,
-                'output_image_url': output_url,
-                'landmarks': results['landmarks'],
-                'ai_description': results['ai_description'],
-                'technical_summary': results['technical_summary']
-            })
-
-        except DemoSession.DoesNotExist:
-            return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    @action(detail=False, methods=['post', 'get'])
-    def image_segmentation(self, request):
-        # If GET with ?session_id=..., return the latest processing result for that session
-        if request.method == 'GET':
-            session_id = request.query_params.get('session_id')
-            if not session_id:
-                return Response({'error': 'session_id required (query param)'}, status=status.HTTP_400_BAD_REQUEST)
-            try:
-                session = DemoSession.objects.get(session_id=session_id)
-                seg_rec = ImageSegmentation.objects.filter(session=session).first()
-                if not seg_rec:
-                    return Response({'session_id': str(session.session_id), 'status': session.status, 'results': None})
-                
-                input_url = request.build_absolute_uri(seg_rec.input_image.url) if seg_rec.input_image else None
-                output_url = request.build_absolute_uri(seg_rec.result_image.url) if seg_rec.result_image else None
-                
-                return Response({
-                    'session_id': str(session.session_id),
-                    'status': session.status,
-                    'input_image_url': input_url,
-                    'output_image_url': output_url,
-                    'segments': seg_rec.segments,
-                    'ai_description': seg_rec.ai_description,
-                    'technical_summary': seg_rec.technical_summary,
-                    'processing_time': seg_rec.processing_time,
-                    'model_used': seg_rec.model_used,
-                    'confidence_score': seg_rec.confidence_score
-                })
-            except DemoSession.DoesNotExist:
-                return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
-
-        # POST path continues below
-        session_id = request.data.get('session_id')
-        if not session_id:
-            return Response({'error': 'session_id required'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            session = DemoSession.objects.get(session_id=session_id)
-            seg_rec = ImageSegmentation.objects.filter(session=session).first()
-            
-            if not seg_rec or not seg_rec.input_image:
-                return Response({'error': 'No image uploaded yet'}, status=status.HTTP_400_BAD_REQUEST)
-
-            # Process the segmentation
-            service = ImageSegmentationService()
-            input_path = os.path.join(settings.MEDIA_ROOT, seg_rec.input_image.name)
-
-            results = service.process_segmentation(input_path)
-
-            # Generate result image with segmentation visualization
-            output_filename = f"segmentation_result_{session_id}.jpg"
-            output_path = os.path.join(settings.MEDIA_ROOT, 'segmentation_output', output_filename)
-            os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
-            # Create visualization (we need to get the prediction from the service)
-            # For now, we'll create a simple visualization
-            service.create_segmentation_visualization(input_path, None, output_path)
-
-            # Update model with results
-            seg_rec.result_image = f"segmentation_output/{output_filename}"
-            seg_rec.segments = results['segments']
-            seg_rec.ai_description = results['ai_description']
-            seg_rec.technical_summary = results['technical_summary']
-            seg_rec.processing_time = results['processing_time']
-            seg_rec.model_used = results['model_used']
-            seg_rec.confidence_score = results['confidence_score']
-            seg_rec.save()
-
-            # Update session status
-            session.status = 'completed'
-            session.save()
-
-            input_url = request.build_absolute_uri(seg_rec.input_image.url)
-            output_url = request.build_absolute_uri(seg_rec.result_image.url)
-
-            return Response({
-                'session_id': str(session.session_id),
-                'status': 'completed',
-                'input_image_url': input_url,
-                'output_image_url': output_url,
-                'segments': results['segments'],
-                'ai_description': results['ai_description'],
-                'technical_summary': results['technical_summary'],
-                'processing_time': results['processing_time'],
-                'model_used': results['model_used'],
-                'confidence_score': results['confidence_score']
-            })
-
-        except DemoSession.DoesNotExist:
-            return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
     @action(detail=False, methods=['post'])
     def register_face(self, request):
         """
@@ -834,5 +463,33 @@ class ProcessingViewSet(viewsets.ViewSet):
                 'general_info': general_info
             })
 
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['post'])
+    def chatbot(self, request):
+        """
+        Chatbot endpoint for AI-powered assistance
+        """
+        try:
+            message = request.data.get('message')
+            context = request.data.get('context', 'home')
+            history = request.data.get('history', [])
+            
+            if not message or not message.strip():
+                return Response({'error': 'Message is required'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Initialize chatbot service
+            chatbot_service = ChatbotService()
+            
+            # Generate response
+            response = chatbot_service.generate_response(message, context, history)
+            
+            return Response({
+                'response': response['response'],
+                'timestamp': response['timestamp'],
+                'context': response['context']
+            })
+            
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

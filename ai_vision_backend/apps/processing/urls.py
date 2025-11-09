@@ -2,7 +2,6 @@ from django.urls import path  # pyright: ignore[reportMissingImports]
 from .views import ProcessingViewSet
 
 urlpatterns = [
-    path('analyze_image/', ProcessingViewSet.as_view({'post': 'analyze_image'})),
     # Direct processing endpoints (no session required)
     path('direct_object_detection/', ProcessingViewSet.as_view({'post': 'direct_object_detection'})),
     path('direct_image_segmentation/', ProcessingViewSet.as_view({'post': 'direct_image_segmentation'})),

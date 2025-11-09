@@ -6,7 +6,6 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.conf import settings
 from .services.object_detection import ObjectDetectionService
-from .services.image_analysis import ImageAnalysisService
 from .services.gemini_service import GeminiService
 from .services.facial_recognition_service import FacialRecognitionService
 from .services.gesture_control_service import GestureControlService
@@ -18,87 +17,9 @@ FACE_EMBEDDING_CACHE = {}
 
 class ProcessingViewSet(viewsets.ViewSet):
     @action(detail=False, methods=['post'])
-    def analyze_image(self, request):
+    def direct_object_detection(self, request):
         """
-        Analyze image from data URI: perform object detection and generate AI caption
-        Expects: {'imageDataUri': 'data:image/jpeg;base64,...'}
-        Returns: {'imageDataUrl': '...', 'objects': [...], 'caption': '...'}
-        """
-        image_data_uri = request.data.get('imageDataUri')
-        if not image_data_uri:
-            return Response({'error': 'imageDataUri required'}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            confidence = float(request.data.get('confidence', 0.5))
-        except Exception:
-            confidence = 0.5
-
-        svc = ImageAnalysisService()
-        result = svc.analyze_image_data_uri(image_data_uri, confidence_threshold=confidence)
-
-        if 'error' in result:
-            return Response({'error': result['error']}, status=status.HTTP_400_BAD_REQUEST)
-
-        return Response(result, status=status.HTTP_200_OK)
-
-    @action(detail=False, methods=['post'])
-    def direct_facial_recognition(self, request):
-        """
-        Direct facial recognition processing - upload file and get results immediately
-        """
-        try:
-            # Get uploaded file
-            uploaded_file = request.FILES.get('file')
-            name = request.POST.get('name', 'Unknown Person')
-            
-            if not uploaded_file:
-                return Response({'error': 'No file uploaded'}, status=status.HTTP_400_BAD_REQUEST)
-
-            # Save file temporarily
-            import tempfile
-            import uuid
-            file_id = str(uuid.uuid4())
-            file_extension = os.path.splitext(uploaded_file.name)[1]
-            temp_filename = f"temp_facial_{file_id}{file_extension}"
-            temp_path = os.path.join(settings.MEDIA_ROOT, 'temp', temp_filename)
-            
-            os.makedirs(os.path.dirname(temp_path), exist_ok=True)
-            with open(temp_path, 'wb+') as destination:
-                for chunk in uploaded_file.chunks():
-                    destination.write(chunk)
-
-            # Process the face
-            service = FacialRecognitionService()
-            results = service.process_face(temp_path, name)
-
-            # Generate result image with face box
-            output_filename = f"facial_result_{file_id}.jpg"
-            output_path = os.path.join(settings.MEDIA_ROOT, 'temp', output_filename)
-            service.draw_face_box(temp_path, output_path)
-
-            # Clean up temp input file
-            os.remove(temp_path)
-
-            # Return results
-            return Response({
-                'status': 'completed',
-                'recognized': results['recognized'],
-                'confidence': results['confidence'],
-                'ai_description': results['ai_description'],
-                'technical_summary': results['technical_summary'],
-                'result_image_url': request.build_absolute_uri(settings.MEDIA_URL + f'temp/{output_filename}')
-            })
-
-        except Exception as e:
-            # Clean up temp files on error
-            if 'temp_path' in locals() and os.path.exists(temp_path):
-                os.remove(temp_path)
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    @action(detail=False, methods=['post'])
-    def direct_gesture_recognition(self, request):
-        """
-        Direct gesture recognition processing - upload file and get results immediately
+        Direct object detection processing - upload file and get results immediately
         """
         try:
             # Get uploaded file
@@ -112,7 +33,7 @@ class ProcessingViewSet(viewsets.ViewSet):
             import uuid
             file_id = str(uuid.uuid4())
             file_extension = os.path.splitext(uploaded_file.name)[1]
-            temp_filename = f"temp_gesture_{file_id}{file_extension}"
+            temp_filename = f"temp_object_{file_id}{file_extension}"
             temp_path = os.path.join(settings.MEDIA_ROOT, 'temp', temp_filename)
             
             os.makedirs(os.path.dirname(temp_path), exist_ok=True)
@@ -120,24 +41,57 @@ class ProcessingViewSet(viewsets.ViewSet):
                 for chunk in uploaded_file.chunks():
                     destination.write(chunk)
 
-            # Process the gesture
-            service = GestureControlService()
-            results = service.process_gesture(temp_path)
-
-            # Generate result image with pose landmarks
-            output_filename = f"gesture_result_{file_id}.jpg"
+            # Process the object detection
+            service = ObjectDetectionService()
+            
+            # Get confidence threshold from request
+            confidence = float(request.POST.get('confidence', 0.5))
+            
+            # Process image and get detections with visualization
+            detections, vis_path = service.process_image_with_viz(temp_path, confidence_threshold=confidence)
+            
+            # Handle the visualization file
+            output_filename = f"object_result_{file_id}.jpg"
             output_path = os.path.join(settings.MEDIA_ROOT, 'temp', output_filename)
-            service.draw_pose_landmarks(temp_path, results['landmarks'], output_path)
+            
+            if vis_path:
+                # vis_path is relative, convert to absolute path
+                absolute_vis_path = os.path.join(settings.MEDIA_ROOT, vis_path)
+                if os.path.exists(absolute_vis_path):
+                    import shutil
+                    shutil.move(absolute_vis_path, output_path)
+                else:
+                    # If visualization file doesn't exist, create a simple copy of input
+                    import shutil
+                    shutil.copy2(temp_path, output_path)
+            else:
+                # If no visualization was created, copy the input image
+                import shutil
+                shutil.copy2(temp_path, output_path)
 
             # Clean up temp input file
             os.remove(temp_path)
 
+            # Generate AI description using Gemini
+            try:
+                gemini_service = GeminiService()
+                ai_description = gemini_service.generate_description(detections, 'object_detection')
+            except Exception as e:
+                print(f"Gemini API error: {e}")
+                # Fallback to simple description
+                ai_description = f"Detected {len(detections)} objects in the image using YOLOv8 model."
+            
+            technical_summary = f"Object detection completed with {len(detections)} detections found using confidence threshold of {confidence}."
+            
             # Return results
             return Response({
                 'status': 'completed',
-                'landmarks': results['landmarks'],
-                'ai_description': results['ai_description'],
-                'technical_summary': results['technical_summary'],
+                'detections': detections,
+                'ai_description': ai_description,
+                'technical_summary': technical_summary,
+                'processing_time': 0,  # Could be calculated if needed
+                'model_used': 'YOLOv8',
+                'confidence_threshold': confidence,
                 'result_image_url': request.build_absolute_uri(settings.MEDIA_URL + f'temp/{output_filename}')
             })
 
@@ -196,93 +150,6 @@ class ProcessingViewSet(viewsets.ViewSet):
                 'processing_time': results['processing_time'],
                 'model_used': results['model_used'],
                 'confidence_score': results['confidence_score'],
-                'result_image_url': request.build_absolute_uri(settings.MEDIA_URL + f'temp/{output_filename}')
-            })
-
-        except Exception as e:
-            # Clean up temp files on error
-            if 'temp_path' in locals() and os.path.exists(temp_path):
-                os.remove(temp_path)
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    @action(detail=False, methods=['post'])
-    def direct_object_detection(self, request):
-        """
-        Direct object detection processing - upload file and get results immediately
-        """
-        try:
-            # Get uploaded file
-            uploaded_file = request.FILES.get('file')
-            
-            if not uploaded_file:
-                return Response({'error': 'No file uploaded'}, status=status.HTTP_400_BAD_REQUEST)
-
-            # Save file temporarily
-            import tempfile
-            import uuid
-            file_id = str(uuid.uuid4())
-            file_extension = os.path.splitext(uploaded_file.name)[1]
-            temp_filename = f"temp_object_{file_id}{file_extension}"
-            temp_path = os.path.join(settings.MEDIA_ROOT, 'temp', temp_filename)
-            
-            os.makedirs(os.path.dirname(temp_path), exist_ok=True)
-            with open(temp_path, 'wb+') as destination:
-                for chunk in uploaded_file.chunks():
-                    destination.write(chunk)
-
-            # Process the object detection
-            from .services.object_detection import ObjectDetectionService
-            service = ObjectDetectionService()
-            
-            # Get confidence threshold from request
-            confidence = float(request.POST.get('confidence', 0.5))
-            
-            # Process image and get detections with visualization
-            detections, vis_path = service.process_image_with_viz(temp_path, confidence_threshold=confidence)
-            
-            # Handle the visualization file
-            output_filename = f"object_result_{file_id}.jpg"
-            output_path = os.path.join(settings.MEDIA_ROOT, 'temp', output_filename)
-            
-            if vis_path:
-                # vis_path is relative, convert to absolute path
-                absolute_vis_path = os.path.join(settings.MEDIA_ROOT, vis_path)
-                if os.path.exists(absolute_vis_path):
-                    import shutil
-                    shutil.move(absolute_vis_path, output_path)
-                else:
-                    # If visualization file doesn't exist, create a simple copy of input
-                    import shutil
-                    shutil.copy2(temp_path, output_path)
-            else:
-                # If no visualization was created, copy the input image
-                import shutil
-                shutil.copy2(temp_path, output_path)
-
-            # Clean up temp input file
-            os.remove(temp_path)
-
-            # Generate AI description using Gemini
-            try:
-                from .services.gemini_service import GeminiService
-                gemini_service = GeminiService()
-                ai_description = gemini_service.generate_description(detections, 'object_detection')
-            except Exception as e:
-                print(f"Gemini API error: {e}")
-                # Fallback to simple description
-                ai_description = f"Detected {len(detections)} objects in the image using YOLOv8 model."
-            
-            technical_summary = f"Object detection completed with {len(detections)} detections found using confidence threshold of {confidence}."
-            
-            # Return results
-            return Response({
-                'status': 'completed',
-                'detections': detections,
-                'ai_description': ai_description,
-                'technical_summary': technical_summary,
-                'processing_time': 0,  # Could be calculated if needed
-                'model_used': 'YOLOv8',
-                'confidence_threshold': confidence,
                 'result_image_url': request.build_absolute_uri(settings.MEDIA_URL + f'temp/{output_filename}')
             })
 

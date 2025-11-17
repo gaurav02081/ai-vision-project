@@ -13,3 +13,4 @@ onnxruntime
 mediapipe
 torch
 torchvision
+whitenoise

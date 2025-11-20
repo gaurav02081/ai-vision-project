@@ -54,6 +54,9 @@ class ProcessingViewSet(viewsets.ViewSet):
             output_filename = f"object_result_{file_id}.jpg"
             output_path = os.path.join(settings.MEDIA_ROOT, 'temp', output_filename)
             
+            # Ensure temp directory exists
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            
             if vis_path:
                 # vis_path is relative, convert to absolute path
                 absolute_vis_path = os.path.join(settings.MEDIA_ROOT, vis_path)
@@ -63,14 +66,24 @@ class ProcessingViewSet(viewsets.ViewSet):
                 else:
                     # If visualization file doesn't exist, create a simple copy of input
                     import shutil
-                    shutil.copy2(temp_path, output_path)
+                    if os.path.exists(temp_path):
+                        shutil.copy2(temp_path, output_path)
             else:
                 # If no visualization was created, copy the input image
                 import shutil
-                shutil.copy2(temp_path, output_path)
-
+                if os.path.exists(temp_path):
+                    shutil.copy2(temp_path, output_path)
+            
+            # Verify output file exists
+            if not os.path.exists(output_path):
+                # Try to create a placeholder or use input
+                if os.path.exists(temp_path):
+                    import shutil
+                    shutil.copy2(temp_path, output_path)
+            
             # Clean up temp input file
-            os.remove(temp_path)
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
 
             # Generate AI description using Gemini
             try:
@@ -83,6 +96,19 @@ class ProcessingViewSet(viewsets.ViewSet):
             
             technical_summary = f"Object detection completed with {len(detections)} detections found using confidence threshold of {confidence}."
             
+            # Verify output file exists before constructing URL
+            if not os.path.exists(output_path):
+                return Response({
+                    'error': 'Failed to create result image',
+                    'status': 'error'
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+            # Construct the image URL properly
+            # Ensure MEDIA_URL doesn't have a trailing slash issue
+            media_url = settings.MEDIA_URL.rstrip('/')
+            image_path = f'{media_url}/temp/{output_filename}'
+            result_image_url = request.build_absolute_uri(image_path)
+            
             # Return results
             return Response({
                 'status': 'completed',
@@ -92,7 +118,8 @@ class ProcessingViewSet(viewsets.ViewSet):
                 'processing_time': 0,  # Could be calculated if needed
                 'model_used': 'YOLOv8',
                 'confidence_threshold': confidence,
-                'result_image_url': request.build_absolute_uri(settings.MEDIA_URL + f'temp/{output_filename}')
+                'result_image_url': result_image_url,
+                'result_file': result_image_url  # Also include for backward compatibility
             })
 
         except Exception as e:
@@ -136,10 +163,35 @@ class ProcessingViewSet(viewsets.ViewSet):
             # Generate result image with segmentation visualization
             output_filename = f"segmentation_result_{file_id}.jpg"
             output_path = os.path.join(settings.MEDIA_ROOT, 'temp', output_filename)
+            
+            # Ensure temp directory exists
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            
             vis_path = service.create_segmentation_visualization(temp_path, prediction, output_path)
-
+            
+            # Verify output file was created
+            if not os.path.exists(output_path):
+                # Fallback: copy input image
+                if os.path.exists(temp_path):
+                    import shutil
+                    shutil.copy2(temp_path, output_path)
+            
             # Clean up temp input file
-            os.remove(temp_path)
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+
+            # Verify output file exists before constructing URL
+            if not os.path.exists(output_path):
+                return Response({
+                    'error': 'Failed to create result image',
+                    'status': 'error'
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+            # Construct the image URL properly
+            # Ensure MEDIA_URL doesn't have a trailing slash issue
+            media_url = settings.MEDIA_URL.rstrip('/')
+            image_path = f'{media_url}/temp/{output_filename}'
+            result_image_url = request.build_absolute_uri(image_path)
 
             # Return results
             return Response({
@@ -150,7 +202,7 @@ class ProcessingViewSet(viewsets.ViewSet):
                 'processing_time': results['processing_time'],
                 'model_used': results['model_used'],
                 'confidence_score': results['confidence_score'],
-                'result_image_url': request.build_absolute_uri(settings.MEDIA_URL + f'temp/{output_filename}')
+                'result_image_url': result_image_url
             })
 
         except Exception as e:

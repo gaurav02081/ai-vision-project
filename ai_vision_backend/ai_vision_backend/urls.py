@@ -56,6 +56,7 @@ def serve_media_file(request, path):
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/processing/', include('apps.processing.urls')),
+    path('api/simulation/', include('apps.quant_simulation.urls')),
     # Custom media file serving with CORS support
     path('media/<path:path>', serve_media_file, name='media'),
 ]

@@ -19,6 +19,9 @@ const API_CONFIG = {
     SIMULATION_PROBABILITIES: '/api/simulation/probabilities/',
     SIMULATION_SENSITIVITY: '/api/simulation/sensitivity/',
     SIMULATION_PATHS3D: '/api/simulation/paths3d/',
+
+    // Student Performance Predictor
+    STUDENT_PREDICT: '/api/processing/student-performance-predict/',
   }
 };
 

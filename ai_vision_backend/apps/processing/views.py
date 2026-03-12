@@ -409,6 +409,33 @@ class ProcessingViewSet(viewsets.ViewSet):
                 'timestamp': response['timestamp'],
                 'context': response['context']
             })
-            
+
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['post'])
+    def student_performance_predict(self, request):
+        """
+        POST /api/processing/student-performance-predict/
+        Predict student PASS/FAIL using Logistic Regression.
+        """
+        try:
+            data = request.data
+            study_hours = float(data.get('study_hours', 0))
+            attendance = float(data.get('attendance', 0))
+            gpa = float(data.get('gpa', 0))
+            assignments = float(data.get('assignments', 0))
+            sleep_hours = float(data.get('sleep_hours', 0))
+
+            from .services.student_predictor import get_predictor
+            predictor = get_predictor()
+            result = predictor.predict(study_hours, attendance, gpa, assignments, sleep_hours)
+
+            return Response(result)
+
+        except (ValueError, TypeError) as e:
+            return Response({'error': f'Invalid input: {e}'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)

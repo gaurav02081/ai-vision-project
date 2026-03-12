@@ -13,4 +13,6 @@ urlpatterns = [
     path('get_gesture_info/', ProcessingViewSet.as_view({'get': 'get_gesture_info'})),
     # Chatbot endpoint
     path('chatbot/', ProcessingViewSet.as_view({'post': 'chatbot'})),
+    # Student performance predictor
+    path('student-performance-predict/', ProcessingViewSet.as_view({'post': 'student_performance_predict'})),
 ]

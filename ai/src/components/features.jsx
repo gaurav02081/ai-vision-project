@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Cpu, Eye, Camera, BarChart3 } from "lucide-react";
+import { Cpu, Eye, Camera, BarChart3, GraduationCap, BrainCircuit } from "lucide-react";
 
 const features = [
   {
@@ -21,6 +21,16 @@ const features = [
     icon: BarChart3,
     title: "Monte Carlo Simulation",
     desc: "Probabilistic price modeling with GBM, 3D paths, and sensitivity analysis.",
+  },
+  {
+    icon: GraduationCap,
+    title: "Student Predictor",
+    desc: "ML-powered academic performance prediction using Logistic Regression.",
+  },
+  {
+    icon: BrainCircuit,
+    title: "Neural Network Lab",
+    desc: "Interactive 3D neural network training visualizer with live backpropagation.",
   },
 ];
 

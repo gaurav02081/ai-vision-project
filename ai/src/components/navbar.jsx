@@ -55,7 +55,8 @@ export default function Navbar() {
                   <Link to="/features/gesture-control" onClick={() => setOpen(false)} className="block px-4 py-2 transition-colors hover:text-[#00C2FF]">GESTURE CONTROL</Link>
                   <Link to="/features/image-segmentation" onClick={() => setOpen(false)} className="block px-4 py-2 transition-colors hover:text-[#00C2FF]">IMAGE SEGMENTATION</Link>
                   <Link to="/features/monte-carlo" onClick={() => setOpen(false)} className="block px-4 py-2 transition-colors hover:text-[#00C2FF]">MONTE CARLO SIM</Link>
-
+                  <Link to="/features/student-performance-predictor" onClick={() => setOpen(false)} className="block px-4 py-2 transition-colors hover:text-[#00C2FF]">STUDENT PREDICTOR</Link>
+                  <Link to="/features/neural-network-training-lab" onClick={() => setOpen(false)} className="block px-4 py-2 transition-colors hover:text-[#00C2FF]">NEURAL NETWORK LAB</Link>
                 </motion.div>
               )}
             </AnimatePresence>

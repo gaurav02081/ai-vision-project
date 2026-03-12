@@ -155,6 +155,17 @@ class ApiService {
     });
     return this.handleResponse(response);
   }
+
+  // Student Performance Predictor
+  async predictStudentPerformance(params) {
+    const url = `${this.baseURL}${this.endpoints.STUDENT_PREDICT}`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params),
+    });
+    return this.handleResponse(response);
+  }
 }
 
 export default new ApiService();

@@ -260,10 +260,9 @@ export default function FeaturesPage() {
                   : 'bg-blue-600 hover:bg-blue-500'
               } text-white`}
             >
-              <span className="material-icons">upload</span>
               <span>
-                {processingStatus === 'uploading' ? 'Uploading...' : 
-                 processingStatus === 'processing' ? 'Processing...' : 'Upload Image'}
+                {processingStatus === 'uploading' ? 'Uploading...' :
+                 processingStatus === 'processing' ? 'Processing...' : 'Upload'}
               </span>
             </button>
             <input
@@ -314,16 +313,16 @@ export default function FeaturesPage() {
           </div>
 
           <div>
-              <h4 className="font-semibold text-gray-200 mb-1">Algorithm Name</h4>
+              <h4 className="font-semibold text-gray-200 mb-1">Algorithm</h4>
               <p className="text-sm text-gray-400 mb-4">
-              Based on strongly it considers the meaning of computer vision
-            </p>
+                <strong className="text-blue-400">YOLOv8</strong> (You Only Look Once v8) by Ultralytics — a single-stage object detector that processes the entire image in one forward pass. It uses a CSPDarknet backbone with a PANet neck for multi-scale feature fusion, detecting 80+ object classes from the COCO dataset in real-time with high accuracy.
+              </p>
               <h4 className="font-semibold text-gray-200 mb-1">
                 Real-World Value
               </h4>
               <p className="text-sm text-gray-400 mb-6">
-              Based on strongly it considers the meaning of computer vision
-            </p>
+                Used in security surveillance for threat detection, autonomous vehicles for obstacle avoidance, retail analytics for customer tracking, manufacturing quality control for defect inspection, and traffic monitoring for vehicle counting and speed estimation.
+              </p>
               <div className="bg-[#0f172a] rounded-lg aspect-video overflow-hidden">
                 <iframe 
                   width="100%" 

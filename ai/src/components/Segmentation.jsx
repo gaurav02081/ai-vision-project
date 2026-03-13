@@ -250,9 +250,8 @@ export default function ImageSegmentationPage() {
                   : 'bg-blue-600 hover:bg-blue-500'
               } text-white`}
             >
-              <span className="material-icons">upload</span>
               <span>
-                {processingStatus === 'processing' ? 'Processing...' : 'Upload Image'}
+                {processingStatus === 'processing' ? 'Processing...' : 'Upload'}
               </span>
             </button>
             <input

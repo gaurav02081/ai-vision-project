@@ -48,15 +48,27 @@ export default function Navbar() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.2 }}
-                  className="absolute mt-2 py-2 w-56 text-white bg-transparent"
+                  className="absolute mt-2 py-2 w-64 text-white bg-black/80 backdrop-blur-sm rounded-lg border border-white/10"
                 >
-                  <Link to="/features/object-detection" onClick={() => setOpen(false)} className="block px-4 py-2 transition-colors hover:text-[#00C2FF]">OBJECT DETECTION</Link>
-                  <Link to="/features/facial-recognition" onClick={() => setOpen(false)} className="block px-4 py-2 transition-colors hover:text-[#00C2FF]">FACIAL RECOGNITION</Link>
-                  <Link to="/features/gesture-control" onClick={() => setOpen(false)} className="block px-4 py-2 transition-colors hover:text-[#00C2FF]">GESTURE CONTROL</Link>
-                  <Link to="/features/image-segmentation" onClick={() => setOpen(false)} className="block px-4 py-2 transition-colors hover:text-[#00C2FF]">IMAGE SEGMENTATION</Link>
-                  <Link to="/features/monte-carlo" onClick={() => setOpen(false)} className="block px-4 py-2 transition-colors hover:text-[#00C2FF]">MONTE CARLO SIM</Link>
-                  <Link to="/features/student-performance-predictor" onClick={() => setOpen(false)} className="block px-4 py-2 transition-colors hover:text-[#00C2FF]">STUDENT PREDICTOR</Link>
-                  <Link to="/features/neural-network-training-lab" onClick={() => setOpen(false)} className="block px-4 py-2 transition-colors hover:text-[#00C2FF]">NEURAL NETWORK LAB</Link>
+                  {/* Computer Vision */}
+                  <div className="px-4 py-1 text-xs font-bold text-[#00C2FF]/70 uppercase tracking-wider">Computer Vision</div>
+                  <Link to="/features/object-detection" onClick={() => setOpen(false)} className="block px-4 py-2 transition-colors hover:text-[#00C2FF] hover:bg-white/5">Object Detection</Link>
+                  <Link to="/features/facial-recognition" onClick={() => setOpen(false)} className="block px-4 py-2 transition-colors hover:text-[#00C2FF] hover:bg-white/5">Facial Recognition</Link>
+                  <Link to="/features/gesture-control" onClick={() => setOpen(false)} className="block px-4 py-2 transition-colors hover:text-[#00C2FF] hover:bg-white/5">Gesture Control</Link>
+                  <Link to="/features/image-segmentation" onClick={() => setOpen(false)} className="block px-4 py-2 transition-colors hover:text-[#00C2FF] hover:bg-white/5">Image Segmentation</Link>
+
+                  <div className="my-1 border-t border-white/10" />
+
+                  {/* Simulation & Analytics */}
+                  <div className="px-4 py-1 text-xs font-bold text-emerald-400/70 uppercase tracking-wider">Simulation</div>
+                  <Link to="/features/monte-carlo" onClick={() => setOpen(false)} className="block px-4 py-2 transition-colors hover:text-emerald-400 hover:bg-white/5">Quant Simulations</Link>
+
+                  <div className="my-1 border-t border-white/10" />
+
+                  {/* AI Learning */}
+                  <div className="px-4 py-1 text-xs font-bold text-purple-400/70 uppercase tracking-wider">AI Learning</div>
+                  <Link to="/features/student-performance-predictor" onClick={() => setOpen(false)} className="block px-4 py-2 transition-colors hover:text-purple-400 hover:bg-white/5">Student Predictor</Link>
+                  <Link to="/features/neural-network-training-lab" onClick={() => setOpen(false)} className="block px-4 py-2 transition-colors hover:text-purple-400 hover:bg-white/5">Neural Network Lab</Link>
                 </motion.div>
               )}
             </AnimatePresence>

@@ -1,29 +1,12 @@
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
 import Navbar from "./navbar";
 
 export default function Hero() {
-  const navigate = useNavigate();
-
   const handleExploreFeatures = () => {
-    // Scroll to features section on home page
     const featuresSection = document.getElementById('features');
     if (featuresSection) {
       featuresSection.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      // If not on home page, navigate to home and then scroll
-      navigate('/');
-      setTimeout(() => {
-        const section = document.getElementById('features');
-        if (section) {
-          section.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 100);
     }
-  };
-
-  const handleTryLiveDemo = () => {
-    navigate('/features/object-detection');
   };
 
   return (
@@ -53,40 +36,31 @@ export default function Hero() {
           transition={{ duration: 1 }}
           className="text-5xl md:text-7xl font-bold text-white"
         >
-          See the Unseen with AI
+          Experience AI 
         </motion.h1>
 
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, delay: 0.3 }}
-          className="mt-4 text-xl md:text-2xl text-gray-300 max-w-2xl"
+          className="mt-4 text-xl md:text-2xl text-gray-300 max-w-3xl"
         >
-          Real-time Computer Vision Demos, powered by OpenCV, YOLO, and DeepFace.
+          Dive into Computer Vision, Neural Networks, Quant Simulations, and Machine Learning — all in one interactive platform.
         </motion.p>
 
-        {/* Buttons */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1.5, delay: 0.6 }}
-          className="mt-8 flex gap-4"
+          className="mt-8 flex justify-center"
         >
-          <motion.button 
-            whileHover={{ scale: 1.02 }} 
-            whileTap={{ scale: 0.98 }} 
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={handleExploreFeatures}
-            className="px-6 py-3 rounded-md border border-white/30 text-white font-medium hover:bg-white/10 transition-colors"
+            className="px-8 py-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white font-medium hover:bg-white/20 transition-all"
           >
             Explore Features
-          </motion.button>
-          <motion.button 
-            whileHover={{ scale: 1.02 }} 
-            whileTap={{ scale: 0.98 }} 
-            onClick={handleTryLiveDemo}
-            className="px-6 py-3 rounded-md bg-[#00C2FF] text-black font-medium hover:bg-[#00A9DB] transition-colors"
-          >
-            Try Live Demo
           </motion.button>
         </motion.div>
       </div>

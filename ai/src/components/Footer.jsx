@@ -17,10 +17,10 @@ export default function Footer({ className = "" }) {
           viewport={{ once: true }}
         >
           <h2 className="text-2xl font-bold text-white mb-4">
-            AI<span className="text-blue-500">Vision</span>
+            AI <span className="text-blue-500">Vision</span> Lab
           </h2>
           <p className="text-base md:text-lg text-gray-500">
-            See the unseen with real-time AI Computer Vision demos.
+            Computer Vision, Simulations & AI Learning — all in one platform.
           </p>
         </motion.div>
 
@@ -39,8 +39,8 @@ export default function Footer({ className = "" }) {
               </a>
             </li>
             <li>
-              <Link to="/features/object-detection" className="hover:text-blue-400 transition text-base md:text-lg">
-                Live Demo
+              <Link to="/docs" className="hover:text-blue-400 transition text-base md:text-lg">
+                Documentation
               </Link>
             </li>
           </ul>
@@ -78,7 +78,7 @@ export default function Footer({ className = "" }) {
 
       {/* Copyright */}
       <div className="mt-12 text-center text-sm md:text-base text-gray-600">
-        © {new Date().getFullYear()} AI Vision. All rights reserved.
+        &copy; {new Date().getFullYear()} AI Vision Lab. All rights reserved.
       </div>
     </footer>
   );

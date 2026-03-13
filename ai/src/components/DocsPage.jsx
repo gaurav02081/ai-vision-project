@@ -24,6 +24,9 @@ export default function DocsPage() {
     "facial-recognition",
     "gesture-control",
     "image-segmentation",
+    "quant-simulations",
+    "student-predictor",
+    "neural-network-lab",
     "how-to-train-models",
     "performance-metrics",
     "api-reference",
@@ -264,7 +267,7 @@ npm start`}</code></pre>
           <div id="features" className="mt-12">
             <h5 className="text-5xl font-semibold mt-6 mb-4">Features Overview</h5>
             
-            <div className="grid grid-cols-2 gap-6 my-6">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 my-6">
               <div className="bg-gradient-to-br from-blue-900 to-blue-800 p-6 rounded-lg">
                 <h3 className="text-blue-300 text-xl font-semibold mb-3">Object Detection</h3>
                 <ul className="text-base md:text-lg space-y-1">
@@ -306,6 +309,39 @@ npm start`}</code></pre>
                   <li>• COCO + Pascal VOC classes</li>
                   <li>• Mask visualization</li>
                   <li>• AI analysis integration</li>
+                </ul>
+              </div>
+
+              <div className="bg-gradient-to-br from-emerald-900 to-emerald-800 p-6 rounded-lg">
+                <h3 className="text-emerald-300 text-xl font-semibold mb-3">Quant Simulations</h3>
+                <ul className="text-base md:text-lg space-y-1">
+                  <li>• Geometric Brownian Motion (GBM)</li>
+                  <li>• Monte Carlo price paths</li>
+                  <li>• VaR & CVaR risk metrics</li>
+                  <li>• Sensitivity analysis grid</li>
+                  <li>• 3D simulation visualization</li>
+                </ul>
+              </div>
+
+              <div className="bg-gradient-to-br from-violet-900 to-violet-800 p-6 rounded-lg">
+                <h3 className="text-violet-300 text-xl font-semibold mb-3">Student Predictor</h3>
+                <ul className="text-base md:text-lg space-y-1">
+                  <li>• Logistic Regression classifier</li>
+                  <li>• Sigmoid probability output</li>
+                  <li>• 5-feature input model</li>
+                  <li>• PASS/FAIL prediction</li>
+                  <li>• Interactive slider inputs</li>
+                </ul>
+              </div>
+
+              <div className="bg-gradient-to-br from-rose-900 to-rose-800 p-6 rounded-lg">
+                <h3 className="text-rose-300 text-xl font-semibold mb-3">Neural Network Lab</h3>
+                <ul className="text-base md:text-lg space-y-1">
+                  <li>• Interactive 3D visualization</li>
+                  <li>• Live backpropagation training</li>
+                  <li>• XOR problem demonstration</li>
+                  <li>• Sigmoid activation function</li>
+                  <li>• Epoch-by-epoch loss tracking</li>
                 </ul>
               </div>
             </div>
@@ -746,6 +782,300 @@ Where:
               <li><strong>Confidence Scoring:</strong> Assigns confidence to each segment</li>
               <li><strong>Bounding Box Generation:</strong> Creates bounding boxes for segments</li>
               <li><strong>AI Description:</strong> Generates natural language descriptions</li>
+            </ul>
+          </div>
+
+          {/* Quant Simulations */}
+          <div id="quant-simulations" className="mt-12">
+            <h5 className="text-5xl font-semibold mt-6 mb-4">Quant Simulations</h5>
+
+            <h3 className="text-3xl font-semibold mt-6 mb-4">Overview</h3>
+            <p className="text-base md:text-lg">
+              The Quant Simulations module uses <strong>Monte Carlo methods</strong> with <strong>Geometric Brownian Motion (GBM)</strong> to
+              model probabilistic price evolution of financial assets. It generates thousands of hypothetical price paths
+              to build a distribution of potential future outcomes, enabling risk assessment and scenario analysis.
+            </p>
+
+            <h3 className="text-3xl font-semibold mt-6 mb-4">Geometric Brownian Motion (GBM)</h3>
+            <p className="text-base md:text-lg">
+              GBM is a continuous-time stochastic process widely used in quantitative finance to model asset price dynamics.
+              It captures both a deterministic trend (drift) and random fluctuations (volatility).
+            </p>
+            <div className="bg-gray-900 p-4 rounded-lg my-4">
+              <h4 className="text-blue-400 font-semibold mb-2">Stochastic Differential Equation (SDE)</h4>
+              <pre className="text-green-400 text-lg"><code>{`dS(t) = μ · S(t) · dt + σ · S(t) · dW(t)`}</code></pre>
+              <h4 className="text-blue-400 font-semibold mt-4 mb-2">Discrete-Time Approximation (used in simulation)</h4>
+              <pre className="text-green-400 text-lg"><code>{`S(t+Δt) = S(t) · exp((μ - 0.5·σ²)·Δt + σ·√Δt·Z)
+where Z ~ N(0,1) (standard normal random variable)`}</code></pre>
+            </div>
+
+            <h3 className="text-3xl font-semibold mt-6 mb-4">Key Parameters</h3>
+            <ul className="text-base md:text-lg space-y-2">
+              <li><strong>Drift (μ):</strong> The expected average annualized rate of return — represents the deterministic trend component of the asset price</li>
+              <li><strong>Volatility (σ):</strong> The annualized standard deviation of returns — measures the magnitude of random price fluctuations</li>
+              <li><strong>Starting Price:</strong> The initial price from which all simulation paths begin</li>
+              <li><strong>Horizon (Trading Days):</strong> The number of forward trading days to simulate</li>
+              <li><strong>Number of Simulations:</strong> How many independent price paths to generate (typically 1,000–50,000)</li>
+            </ul>
+
+            <h3 className="text-3xl font-semibold mt-6 mb-4">Risk Metrics</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-4">
+              <div className="bg-gray-800 p-4 rounded-lg">
+                <h4 className="text-yellow-400 font-semibold">Value at Risk (VaR)</h4>
+                <p className="text-base mt-2">Maximum potential loss over a specified time period at a given confidence level (e.g., 95% VaR means only a 5% chance of exceeding this loss).</p>
+              </div>
+              <div className="bg-gray-800 p-4 rounded-lg">
+                <h4 className="text-yellow-400 font-semibold">CVaR / Expected Shortfall</h4>
+                <p className="text-base mt-2">The average loss in the worst-case scenarios beyond the VaR threshold. Captures tail risk more completely than VaR alone.</p>
+              </div>
+              <div className="bg-gray-800 p-4 rounded-lg">
+                <h4 className="text-yellow-400 font-semibold">Sensitivity Analysis</h4>
+                <p className="text-base mt-2">Examines how changes in drift and volatility affect expected price, probability of gain, and confidence intervals through a parameter grid.</p>
+              </div>
+            </div>
+
+            <h3 className="text-3xl font-semibold mt-6 mb-4">Features</h3>
+            <ul className="text-base md:text-lg space-y-2">
+              <li><strong>Simulation Tab:</strong> Generates price paths with confidence bands (P5–P95, P25–P75), mean path, and final price histogram</li>
+              <li><strong>Probability Tab:</strong> Dashboard showing probability of gain/loss at various thresholds (2%, 5%, 10%)</li>
+              <li><strong>Sensitivity Tab:</strong> 3×3 grid varying drift and volatility to compare expected outcomes across scenarios</li>
+              <li><strong>3D View:</strong> Interactive 3D scatter plot of all simulation paths with mean, P5, and P95 overlays</li>
+              <li><strong>CSV Upload:</strong> Upload historical price data to automatically estimate drift and volatility parameters</li>
+            </ul>
+
+            <h3 className="text-3xl font-semibold mt-6 mb-4">Real-World Applications</h3>
+            <ul className="text-base md:text-lg space-y-2">
+              <li>Portfolio risk management and asset allocation</li>
+              <li>Option pricing for exotic and path-dependent derivatives</li>
+              <li>Market stress testing and scenario analysis</li>
+              <li>Credit risk modeling</li>
+              <li>Retirement planning and personal financial projections</li>
+            </ul>
+
+            <h3 className="text-3xl font-semibold mt-6 mb-4">API Endpoint</h3>
+            <div className="bg-gray-900 p-4 rounded-lg my-4">
+              <pre className="text-green-400"><code>{`POST /api/processing/monte-carlo/simulate/
+POST /api/processing/monte-carlo/probabilities/
+POST /api/processing/monte-carlo/sensitivity/
+POST /api/processing/monte-carlo/paths-3d/
+POST /api/processing/monte-carlo/csv-simulate/`}</code></pre>
+            </div>
+
+            <h3 className="text-3xl font-semibold mt-6 mb-4">References</h3>
+            <ul className="text-base md:text-lg space-y-2">
+              <li>Black, F. & Scholes, M. (1973). "The Pricing of Options and Corporate Liabilities." <em>Journal of Political Economy</em></li>
+              <li>Glasserman, P. (2003). <em>Monte Carlo Methods in Financial Engineering</em>. Springer</li>
+              <li>Boyle, P., Broadie, M., & Glasserman, P. (1997). "Monte Carlo Methods for Security Pricing." <em>Journal of Economic Dynamics and Control</em></li>
+            </ul>
+          </div>
+
+          {/* Student Performance Predictor */}
+          <div id="student-predictor" className="mt-12">
+            <h5 className="text-5xl font-semibold mt-6 mb-4">Student Predictor</h5>
+
+            <h3 className="text-3xl font-semibold mt-6 mb-4">Overview</h3>
+            <p className="text-base md:text-lg">
+              The Student Performance Predictor uses <strong>Logistic Regression</strong> — a supervised machine learning
+              algorithm — to predict whether a student will PASS or FAIL based on their academic behavior and habits.
+              The model outputs a probability score that is mapped to a binary classification.
+            </p>
+
+            <h3 className="text-3xl font-semibold mt-6 mb-4">Logistic Regression</h3>
+            <p className="text-base md:text-lg">
+              Logistic Regression models the probability of a binary outcome using the <strong>sigmoid (logistic) function</strong>,
+              which maps any real-valued input to a value between 0 and 1.
+            </p>
+            <div className="bg-gray-900 p-4 rounded-lg my-4">
+              <h4 className="text-blue-400 font-semibold mb-2">Sigmoid Function</h4>
+              <pre className="text-green-400 text-lg"><code>{`σ(z) = 1 / (1 + e^(-z))
+
+where z = w₀ + w₁·x₁ + w₂·x₂ + ... + wₙ·xₙ`}</code></pre>
+              <h4 className="text-blue-400 font-semibold mt-4 mb-2">Decision Rule</h4>
+              <pre className="text-green-400 text-lg"><code>{`if P(PASS) ≥ 0.5 → predict PASS
+if P(PASS) < 0.5 → predict FAIL`}</code></pre>
+            </div>
+
+            <h3 className="text-3xl font-semibold mt-6 mb-4">Input Features</h3>
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 my-4">
+              <div className="bg-gray-800 p-4 rounded-lg text-center">
+                <h4 className="text-cyan-400 font-semibold">Study Hours</h4>
+                <p className="text-sm text-gray-400 mt-1">Hours per day<br/>Range: 0–16</p>
+              </div>
+              <div className="bg-gray-800 p-4 rounded-lg text-center">
+                <h4 className="text-cyan-400 font-semibold">Attendance</h4>
+                <p className="text-sm text-gray-400 mt-1">Class attendance %<br/>Range: 0–100</p>
+              </div>
+              <div className="bg-gray-800 p-4 rounded-lg text-center">
+                <h4 className="text-cyan-400 font-semibold">GPA</h4>
+                <p className="text-sm text-gray-400 mt-1">Previous semester<br/>Range: 0–4.0</p>
+              </div>
+              <div className="bg-gray-800 p-4 rounded-lg text-center">
+                <h4 className="text-cyan-400 font-semibold">Assignments</h4>
+                <p className="text-sm text-gray-400 mt-1">Completion rate %<br/>Range: 0–100</p>
+              </div>
+              <div className="bg-gray-800 p-4 rounded-lg text-center">
+                <h4 className="text-cyan-400 font-semibold">Sleep Hours</h4>
+                <p className="text-sm text-gray-400 mt-1">Average per night<br/>Range: 0–14</p>
+              </div>
+            </div>
+
+            <h3 className="text-3xl font-semibold mt-6 mb-4">How It Works</h3>
+            <ol className="text-base md:text-lg space-y-2 list-decimal list-inside">
+              <li>The model receives 5 input features from the user via interactive sliders</li>
+              <li>A weighted sum is computed: z = w₀ + w₁·(study_hours) + w₂·(attendance) + ...</li>
+              <li>The result is passed through the sigmoid function to get P(PASS)</li>
+              <li>If P(PASS) ≥ 0.5, the student is predicted to PASS; otherwise FAIL</li>
+              <li>Both PASS and FAIL probabilities are displayed with a visual confidence bar</li>
+            </ol>
+
+            <h3 className="text-3xl font-semibold mt-6 mb-4">Training Details</h3>
+            <ul className="text-base md:text-lg space-y-2">
+              <li><strong>Algorithm:</strong> Logistic Regression (scikit-learn)</li>
+              <li><strong>Training Data:</strong> 500 synthetic student behavior samples</li>
+              <li><strong>Loss Function:</strong> Binary cross-entropy (log loss)</li>
+              <li><strong>Optimization:</strong> Maximum likelihood estimation via gradient descent</li>
+              <li><strong>Key Insight:</strong> GPA and study hours have the highest impact on prediction accuracy</li>
+            </ul>
+
+            <h3 className="text-3xl font-semibold mt-6 mb-4">Real-World Applications</h3>
+            <ul className="text-base md:text-lg space-y-2">
+              <li><strong>Early Warning Systems:</strong> Identify at-risk students early in the semester for timely intervention</li>
+              <li><strong>Student Retention:</strong> Universities predict dropout risk and target support resources</li>
+              <li><strong>Curriculum Design:</strong> Understanding which factors most influence success helps improve course structures</li>
+              <li><strong>Resource Allocation:</strong> Direct tutoring and counseling toward students most likely to struggle</li>
+            </ul>
+
+            <h3 className="text-3xl font-semibold mt-6 mb-4">API Endpoint</h3>
+            <div className="bg-gray-900 p-4 rounded-lg my-4">
+              <pre className="text-green-400"><code>{`POST /api/processing/student-predictor/predict/
+
+Request Body:
+{
+  "study_hours": 6,
+  "attendance": 85,
+  "gpa": 3.5,
+  "assignments": 80,
+  "sleep_hours": 7
+}`}</code></pre>
+            </div>
+
+            <h3 className="text-3xl font-semibold mt-6 mb-4">References</h3>
+            <ul className="text-base md:text-lg space-y-2">
+              <li>Hosmer, D.W., Lemeshow, S., & Sturdivant, R.X. (2013). <em>Applied Logistic Regression</em>. 3rd edition, Wiley</li>
+              <li>Shahiri, A.M., Husain, W., & Rashid, N.A. (2015). "A Review on Predicting Student's Performance Using Data Mining Techniques." <em>Procedia Computer Science</em>, 72, 414-422</li>
+            </ul>
+          </div>
+
+          {/* Neural Network Lab */}
+          <div id="neural-network-lab" className="mt-12">
+            <h5 className="text-5xl font-semibold mt-6 mb-4">Neural Network Lab</h5>
+
+            <h3 className="text-3xl font-semibold mt-6 mb-4">Overview</h3>
+            <p className="text-base md:text-lg">
+              The Neural Network Lab is an <strong>interactive 3D visualization</strong> of a neural network learning to solve
+              the <strong>XOR problem</strong> — a historically significant problem that demonstrated the limitations of
+              single-layer perceptrons and the necessity of hidden layers with non-linear activation functions.
+            </p>
+
+            <h3 className="text-3xl font-semibold mt-6 mb-4">The XOR Problem</h3>
+            <p className="text-base md:text-lg">
+              XOR (exclusive OR) outputs TRUE when inputs differ and FALSE when they match. It is <strong>not linearly
+              separable</strong> — meaning no single straight line can separate the two classes in 2D input space.
+            </p>
+            <div className="bg-gray-900 p-4 rounded-lg my-4">
+              <h4 className="text-blue-400 font-semibold mb-2">XOR Truth Table</h4>
+              <pre className="text-green-400 text-lg"><code>{`Input A | Input B | Output
+   0    |    0    |   0
+   0    |    1    |   1
+   1    |    0    |   1
+   1    |    1    |   0`}</code></pre>
+            </div>
+            <p className="text-base md:text-lg">
+              In 1969, <strong>Minsky & Papert</strong> proved in their book <em>Perceptrons</em> that a single-layer
+              perceptron cannot learn XOR, contributing to the first "AI winter." The solution came with
+              multi-layer networks and the backpropagation algorithm.
+            </p>
+
+            <h3 className="text-3xl font-semibold mt-6 mb-4">Network Architecture</h3>
+            <ul className="text-base md:text-lg space-y-2">
+              <li><strong>Input Layer:</strong> 2 neurons (Input A, Input B)</li>
+              <li><strong>Hidden Layer 1:</strong> 4 neurons with sigmoid activation</li>
+              <li><strong>Hidden Layer 2:</strong> 4 neurons with sigmoid activation</li>
+              <li><strong>Output Layer:</strong> 1 neuron with sigmoid activation</li>
+              <li><strong>Total Trainable Parameters:</strong> Weights + biases across all layers</li>
+            </ul>
+
+            <h3 className="text-3xl font-semibold mt-6 mb-4">Backpropagation Algorithm</h3>
+            <p className="text-base md:text-lg mb-4">
+              Backpropagation is the algorithm used to train neural networks by computing the gradient of the loss
+              function with respect to each weight using the chain rule of calculus.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
+              <div className="bg-gray-800 p-4 rounded-lg">
+                <h4 className="text-blue-400 font-semibold">Forward Pass</h4>
+                <ol className="text-base space-y-1 list-decimal list-inside mt-2">
+                  <li>Input data propagates through each layer</li>
+                  <li>Each neuron computes weighted sum + bias</li>
+                  <li>Sigmoid activation is applied: σ(x) = 1/(1+e⁻ˣ)</li>
+                  <li>Output is compared to expected value</li>
+                </ol>
+              </div>
+              <div className="bg-gray-800 p-4 rounded-lg">
+                <h4 className="text-red-400 font-semibold">Backward Pass</h4>
+                <ol className="text-base space-y-1 list-decimal list-inside mt-2">
+                  <li>Loss is calculated (mean squared error)</li>
+                  <li>Gradients computed via chain rule</li>
+                  <li>Propagated backward layer by layer</li>
+                  <li>Weights updated: w = w - lr × ∂L/∂w</li>
+                </ol>
+              </div>
+            </div>
+
+            <h3 className="text-3xl font-semibold mt-6 mb-4">Sigmoid Activation Function</h3>
+            <div className="bg-gray-900 p-4 rounded-lg my-4">
+              <pre className="text-green-400 text-lg"><code>{`σ(x) = 1 / (1 + e^(-x))
+
+Derivative: σ'(x) = σ(x) · (1 - σ(x))
+
+Properties:
+  • Output range: (0, 1)
+  • Smooth, differentiable everywhere
+  • Introduces non-linearity (essential for XOR)`}</code></pre>
+            </div>
+
+            <h3 className="text-3xl font-semibold mt-6 mb-4">Why XOR Requires Hidden Layers</h3>
+            <ul className="text-base md:text-lg space-y-2">
+              <li>AND and OR are <strong>linearly separable</strong> — a single perceptron can solve them</li>
+              <li>XOR is <strong>not linearly separable</strong> — no single line can divide the classes</li>
+              <li>Hidden layers with non-linear activation transform the input space into a higher-dimensional representation where the classes become separable</li>
+              <li>This is the fundamental insight that revived neural network research in the 1980s</li>
+            </ul>
+
+            <h3 className="text-3xl font-semibold mt-6 mb-4">Interactive Features</h3>
+            <ul className="text-base md:text-lg space-y-2">
+              <li><strong>3D Visualization:</strong> Rotate and zoom into the network to see neurons, weights, and activations in real-time</li>
+              <li><strong>Live Training:</strong> Watch the network learn step-by-step with adjustable learning rate and speed</li>
+              <li><strong>Weight Visualization:</strong> Connection colors and thickness represent weight magnitude and sign</li>
+              <li><strong>Loss Tracking:</strong> Real-time loss curve showing convergence over training epochs</li>
+              <li><strong>Truth Table:</strong> Live output predictions for all 4 XOR inputs, updated each epoch</li>
+            </ul>
+
+            <h3 className="text-3xl font-semibold mt-6 mb-4">Real-World Applications of Neural Networks</h3>
+            <ul className="text-base md:text-lg space-y-2">
+              <li>Image recognition and computer vision (CNNs)</li>
+              <li>Natural language processing and machine translation (Transformers)</li>
+              <li>Speech recognition and synthesis</li>
+              <li>Autonomous vehicles and robotics</li>
+              <li>Medical diagnosis and drug discovery</li>
+              <li>Financial forecasting and algorithmic trading</li>
+            </ul>
+
+            <h3 className="text-3xl font-semibold mt-6 mb-4">References</h3>
+            <ul className="text-base md:text-lg space-y-2">
+              <li>Minsky, M. & Papert, S. (1969). <em>Perceptrons: An Introduction to Computational Geometry</em>. MIT Press</li>
+              <li>Rumelhart, D.E., Hinton, G.E., & Williams, R.J. (1986). "Learning Representations by Back-Propagating Errors." <em>Nature</em>, 323, 533-536</li>
+              <li>Goodfellow, I., Bengio, Y., & Courville, A. (2016). <em>Deep Learning</em>. MIT Press</li>
+              <li>LeCun, Y., Bengio, Y., & Hinton, G. (2015). "Deep Learning." <em>Nature</em>, 521, 436-444</li>
             </ul>
           </div>
 

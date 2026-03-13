@@ -19,6 +19,16 @@ const values = [
     desc: "Enable touchless control for kiosks, healthcare, and AR/VR apps through intuitive hand gesture recognition technology.",
     img: gestureControlledInterfaces,
   },
+  {
+    title: "Quantitative Finance Simulations",
+    desc: "Model financial uncertainty with Monte Carlo simulations powered by Geometric Brownian Motion. Estimate portfolio risk with VaR & CVaR, run sensitivity analysis, and visualize thousands of price paths in 3D.",
+    img: "/assets/quant.jpeg",
+  },
+  {
+    title: "Neural Network Training",
+    desc: "Visualize how neural networks learn in real-time with an interactive 3D training lab. Watch backpropagation solve the XOR problem, see weights update live, and understand the math behind deep learning.",
+    img: "/assets/neuron.png",
+  },
 ];
 
 export default function RealWorldValue() {

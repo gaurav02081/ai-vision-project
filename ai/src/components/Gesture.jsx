@@ -345,26 +345,23 @@ export default function GestureControlPage() {
             {!webcamActive ? (
               <button
                 onClick={startWebcam}
-                className="flex items-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-md transition"
+                className="px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-md transition"
               >
-                <span>🎥</span>
-                <span>Start Camera</span>
+                Start Camera
               </button>
             ) : (
               <>
                 <button
                   onClick={stopWebcam}
-                  className="flex items-center space-x-2 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-md transition"
+                  className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-md transition"
                 >
-                  <span>⏹️</span>
-                  <span>Stop Camera</span>
+                  Stop Camera
                 </button>
                 <button
                   onClick={clearCanvas}
-                  className="flex items-center space-x-2 px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-md transition"
+                  className="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-md transition"
                 >
-                  <span>🔄</span>
-                  <span>Clear</span>
+                  Clear
                 </button>
               </>
             )}
@@ -372,21 +369,19 @@ export default function GestureControlPage() {
               <>
                 <button
                   onClick={() => setShowLandmarks(!showLandmarks)}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-md transition ${
+                  className={`px-4 py-2 rounded-md transition ${
                     showLandmarks ? 'bg-blue-600 text-white' : 'bg-gray-600 text-gray-300'
                   }`}
                 >
-                  <span>👁️</span>
-                  <span>{showLandmarks ? 'Hide' : 'Show'} Landmarks</span>
+                  {showLandmarks ? 'Hide' : 'Show'} Landmarks
                 </button>
                 <button
                   onClick={() => setShowConnections(!showConnections)}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-md transition ${
+                  className={`px-4 py-2 rounded-md transition ${
                     showConnections ? 'bg-blue-600 text-white' : 'bg-gray-600 text-gray-300'
                   }`}
                 >
-                  <span>🔗</span>
-                  <span>{showConnections ? 'Hide' : 'Show'} Connections</span>
+                  {showConnections ? 'Hide' : 'Show'} Connections
                 </button>
               </>
             )}

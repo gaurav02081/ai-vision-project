@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+Pillow==10.0.1
+opencv-python-headless==4.8.1.78
+ultralytics==8.0.196
+numpy==1.24.3
+insightface
+onnxruntime
+mediapipe
+torch --index-url https://download.pytorch.org/whl/cpu
+torchvision --index-url https://download.pytorch.org/whl/cpu
+python-multipart

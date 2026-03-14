@@ -270,12 +270,14 @@ class ObjectDetectionService:
             out_name = f"{name}_vis{ext}"
             out_path = os.path.join(out_dir, out_name)
             
-            print(f"Saving visualization to: {out_path}")
             success = cv2.imwrite(out_path, img)
-            print(f"Image save success: {success}")
+            
+            # Verify file was created
+            if not success or not os.path.exists(out_path):
+                vis_path = None
+                return detections, vis_path
             
             vis_path = os.path.join(rel_dir, out_name)
-            print(f"Relative vis_path: {vis_path}")
         except Exception as e:
             print('Could not create visualization:', e)
             vis_path = None

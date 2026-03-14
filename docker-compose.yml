@@ -1,0 +1,47 @@
+services:
+  # Light Django API server (for Render free tier)
+  backend:
+    build:
+      context: ./ai_vision_backend
+      dockerfile: Dockerfile.light
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./ai_vision_backend/.env
+    environment:
+      - DEBUG=False
+      - ALLOWED_HOSTS=localhost,127.0.0.1,backend
+      - CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+      - ML_SERVICE_URL=http://ml-service:8080
+    volumes:
+      - media_data:/app/media
+    depends_on:
+      - ml-service
+    restart: unless-stopped
+
+  # Heavy ML service (for Oracle Cloud free VM)
+  ml-service:
+    build: ./ml-service
+    ports:
+      - "8080:8080"
+    environment:
+      - MEDIA_ROOT=/app/media
+    volumes:
+      - ml_media:/app/media
+    restart: unless-stopped
+
+  # React frontend (for Vercel)
+  frontend:
+    build:
+      context: ./ai
+      args:
+        REACT_APP_API_URL: http://localhost:8000
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  media_data:
+  ml_media:

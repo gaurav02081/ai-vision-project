@@ -267,7 +267,18 @@ class ImageSegmentationService:
             
             # Convert back to BGR for saving
             result = cv2.cvtColor(result, cv2.COLOR_RGB2BGR)
-            cv2.imwrite(output_path, result)
+            
+            # Ensure output directory exists
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            
+            # Save the image
+            success = cv2.imwrite(output_path, result)
+            if not success:
+                return None
+            
+            # Verify file was created
+            if not os.path.exists(output_path):
+                return None
             
             return output_path
             

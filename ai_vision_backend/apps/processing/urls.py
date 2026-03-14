@@ -2,7 +2,6 @@ from django.urls import path  # pyright: ignore[reportMissingImports]
 from .views import ProcessingViewSet
 
 urlpatterns = [
-    path('analyze_image/', ProcessingViewSet.as_view({'post': 'analyze_image'})),
     # Direct processing endpoints (no session required)
     path('direct_object_detection/', ProcessingViewSet.as_view({'post': 'direct_object_detection'})),
     path('direct_image_segmentation/', ProcessingViewSet.as_view({'post': 'direct_image_segmentation'})),
@@ -14,4 +13,6 @@ urlpatterns = [
     path('get_gesture_info/', ProcessingViewSet.as_view({'get': 'get_gesture_info'})),
     # Chatbot endpoint
     path('chatbot/', ProcessingViewSet.as_view({'post': 'chatbot'})),
+    # Student performance predictor
+    path('student-performance-predict/', ProcessingViewSet.as_view({'post': 'student_performance_predict'})),
 ]

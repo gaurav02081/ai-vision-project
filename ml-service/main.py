@@ -155,14 +155,20 @@ async def recognize_frame(
     embedding: str = Form(...),
     name: str = Form("Unknown"),
 ):
-    ref_embedding = np.array(json.loads(embedding))
-    service = get_face_service()
-    results = service.process_webcam_frame(frame, ref_embedding, name)
-    return results
+    try:
+        ref_embedding = np.array(json.loads(embedding))
+        service = get_face_service()
+        results = service.process_webcam_frame(frame, ref_embedding, name)
+        return results
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
 
 
 @app.post("/predict/gesture")
 async def gesture(frame: str = Form(...)):
-    service = get_gesture_service()
-    results = service.process_hand_gestures(frame)
-    return results
+    try:
+        service = get_gesture_service()
+        results = service.process_hand_gestures(frame)
+        return results
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})

@@ -128,7 +128,7 @@ export default function FacialRecognitionPage() {
       if (videoRef.current && videoRef.current.readyState === 4) {
         await captureAndRecognize();
       }
-    }, 2000); // Every 2 seconds
+    }, 5000); // Every 5 seconds for free-tier API
   };
 
   const captureAndRecognize = async () => {

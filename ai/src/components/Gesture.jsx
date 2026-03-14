@@ -112,7 +112,7 @@ export default function GestureControlPage() {
       if (videoRef.current && videoRef.current.readyState === 4) {
         await captureAndProcess();
       }
-    }, 200); // 5 FPS for better performance
+    }, 3000); // Every 3 seconds for free-tier API
   };
 
   const captureAndProcess = async () => {

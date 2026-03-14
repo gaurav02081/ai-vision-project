@@ -64,7 +64,7 @@ class FacialRecognitionService:
                     'bbox': bbox,
                     'name': name,
                     'confidence': float(confidence),
-                    'is_match': is_match,
+                    'is_match': bool(is_match),
                     'similarity': float(similarity)
                 })
 

@@ -1,0 +1,32 @@
+# Environment variables (secrets)
+.env
+.env.*
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+*.egg-info/
+
+# Node
+node_modules/
+build/
+
+# Database
+db.sqlite3
+
+# Media uploads
+media/
+
+# Model weights
+*.pt
+*.onnx
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

@@ -156,11 +156,15 @@ async def recognize_frame(
     name: str = Form("Unknown"),
 ):
     try:
-        ref_embedding = np.array(json.loads(embedding))
+        ref_embedding = np.array(json.loads(embedding), dtype=np.float32)
         service = get_face_service()
         results = service.process_webcam_frame(frame, ref_embedding, name)
         return results
+    except json.JSONDecodeError as e:
+        return JSONResponse(status_code=400, content={"error": f"Invalid embedding JSON: {str(e)}"})
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 

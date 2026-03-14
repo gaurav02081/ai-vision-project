@@ -19,7 +19,7 @@ export default function Hero() {
         playsInline
         className="absolute inset-0 w-full h-full object-cover filter brightness-125 contrast-110 saturate-125"
       >
-        <source src="/assets/riyadh-city.858bc0e5 (1).mp4" type="video/mp4" />
+        <source src="/assets/riyadh-city.mp4" type="video/mp4" />
       </video>
 
       {/* Navbar */}
